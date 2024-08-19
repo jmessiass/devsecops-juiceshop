@@ -91,9 +91,16 @@ jobs:
   run_secrets_scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Install Gitleaks
+        run: |
+          curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d : -f 2,3 | tr -d \" | wget -qi -
+          tar -zxvf gitleaks*linux_amd64.tar.gz
+          sudo mv gitleaks /usr/local/bin/
 
       - name: Run Gitleaks
         run: |

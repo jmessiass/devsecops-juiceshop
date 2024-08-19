@@ -95,19 +95,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install TruffleHog
+      - name: Run Gitleaks
         run: |
-          pip install trufflehog
+          gitleaks detect --source . --report-format json --report-path gitleaks-report.json
 
-      - name: Run TruffleHog
-        run: |
-          trufflehog git --json . > trufflehog-report.json
-
-      - name: Upload TruffleHog JSON report
+      - name: Upload Gitleaks JSON report
         uses: actions/upload-artifact@v3
         with:
-          name: trufflehog-report
-          path: trufflehog-report.json
+          name: gitleaks-report
+          path: gitleaks-report.json
 
   run_iac_scan:
     runs-on: ubuntu-20.04

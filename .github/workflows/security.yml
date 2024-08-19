@@ -1,6 +1,6 @@
 name: Security Scan
 permissions:
-  contents: read
+  contents: write
   security-events: write
 
 on:
@@ -18,16 +18,13 @@ jobs:
 
       - name: run semgrep
         run: |
-          semgrep \
-            --sarif --output semgrep.sarif \
-            --metrics=off \
-            --config="p/default"
+          semgrep --config="p/default" --json --output=semgrep-report.json
 
       - name: save report as pipeline artifact
         uses: actions/upload-artifact@v3
         with:
-          name: semgrep.sarif
-          path: semgrep.sarif
+          name: semgrep-report
+          path: semgrep-report.json
 
   run_sca:
     runs-on: ubuntu-latest
@@ -47,7 +44,7 @@ jobs:
           project: 'juice-shop'
           path: '.'
           format: 'JSON'
-          out: 'depcheck'
+          out: 'dependency-check-report.json'
           args: >
             --failOnCVSS 11
             --enableRetired
@@ -57,8 +54,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: Depcheck report
-          path: ${{github.workspace}}/depcheck
+          name: dependency-check-report
+          path: dependency-check-report.json
 
   run_dast:
     runs-on: ubuntu-latest
@@ -97,9 +94,20 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install TruffleHog
+        run: |
+          pip install trufflehog
+
+      - name: Run TruffleHog
+        run: |
+          trufflehog filesystem --json --directory . > trufflehog-report.json
+
+      - name: Upload TruffleHog JSON report
+        uses: actions/upload-artifact@v3
+        with:
+          name: trufflehog-report
+          path: trufflehog-report.json
 
   run_iac_scan:
     runs-on: ubuntu-20.04
@@ -112,12 +120,12 @@ jobs:
         with:
           scan-type: 'fs'
           ignore-unfixed: true
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          format: 'json'
+          output: 'trivy-results.json'
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy report
         uses: actions/upload-artifact@v3
         with:
           name: trivy-report
-          path: 'trivy-results.sarif'
+          path: 'trivy-results.json'

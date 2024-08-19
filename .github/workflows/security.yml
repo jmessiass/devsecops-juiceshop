@@ -101,7 +101,7 @@ jobs:
 
       - name: Run TruffleHog
         run: |
-          trufflehog filesystem --json --directory . > trufflehog-report.json
+          trufflehog git --json . > trufflehog-report.json
 
       - name: Upload TruffleHog JSON report
         uses: actions/upload-artifact@v3

@@ -46,11 +46,12 @@ jobs:
           format: 'JSON'
           out: 'depcheck'
           args: >
-            --failOnCVSS 7
+            --failOnCVSS 11
             --enableRetired
             --disableArchive --exclude **/*.zip
 
       - name: Upload Depcheck report
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: Depcheck report

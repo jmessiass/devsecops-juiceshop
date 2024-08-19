@@ -1,4 +1,7 @@
 name: Security Scan
+permissions:
+  contents: read
+  security-events: write
 
 on:
   push:
@@ -72,9 +75,21 @@ jobs:
           bkimminich/juice-shop
 
       - name: OWASP ZAP Full Scan (DAST)
+        id: zap_scan
         uses: zaproxy/action-full-scan@v0.8.0
         with:
           target: 'http://127.0.0.1:3000'
+          format: 'json'
+          output: 'zap-report.json'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload ZAP Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ZAP Report
+          path: zap-report.json
 
   run_secrets_scan:
     runs-on: ubuntu-latest

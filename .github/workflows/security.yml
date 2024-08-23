@@ -25,18 +25,19 @@ jobs:
         #   echo "$OWNER_NAME"
         #   echo "$REPO_NAME"
         run: |
-          PATH_TO_CHECK="/.github"  # Especifique o caminho que deseja verificar
           CODEOWNERS_FILE=".github/CODEOWNERS"  # Caminho para o arquivo CODEOWNERS
           
           # Verifica se o arquivo CODEOWNERS existe
           if [ -f "$CODEOWNERS_FILE" ]; then
-            OWNER=$(grep "^$PATH_TO_CHECK" "$CODEOWNERS_FILE" | awk '{print $2}')
-            echo "OWNER=$OWNER" >> $GITHUB_ENV
-            echo "The owner for $PATH_TO_CHECK is: $OWNER"
+            # Extrai todos os valores que começam com @ (usuários ou equipes)
+            OWNERS=$(grep -o '@[a-zA-Z0-9/_-]*' "$CODEOWNERS_FILE")
+            echo "OWNERS=$OWNERS" >> $GITHUB_ENV
           else
             echo "CODEOWNERS file not found in $CODEOWNERS_FILE."
             exit 1
           fi
+
+          echo "$OWNERS"
 
       # - name: run semgrep
       #   run: |

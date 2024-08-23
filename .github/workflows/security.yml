@@ -22,6 +22,8 @@ jobs:
           REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
           echo "OWNER_NAME=$OWNER_NAME" >> $GITHUB_ENV
           echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+          echo "$OWNER_NAME"
+          echo "$REPO_NAME"
 
       - name: run semgrep
         run: |
@@ -38,13 +40,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: capture repository owner and name
-        run: |
-          OWNER_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
-          REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-          echo "OWNER_NAME=$OWNER_NAME" >> $GITHUB_ENV
-          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
 
       - name: Run Trivy vulnerability scanner in IaC mode
         uses: aquasecurity/trivy-action@master

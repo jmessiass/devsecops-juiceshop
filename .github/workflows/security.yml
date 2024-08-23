@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: trivy-report
-          path: 'trivy-results.json'
+          path: 'trivy-report.json'
 
   # run_sca:
   #   runs-on: ubuntu-latest

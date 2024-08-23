@@ -25,12 +25,12 @@ jobs:
         #   echo "$OWNER_NAME"
         #   echo "$REPO_NAME"
         run: |
-          CODEOWNERS_FILE=".github/CODEOWNERS"  # Caminho para o arquivo CODEOWNERS
+          CODEOWNERS_FILE=".github/CODEOWNERS"
           
           # Verifica se o arquivo CODEOWNERS existe
           if [ -f "$CODEOWNERS_FILE" ]; then
-            # Extrai todos os valores que começam com @ (usuários ou equipes)
-            OWNERS=$(grep -o '@[a-zA-Z0-9/_-]*' "$CODEOWNERS_FILE")
+            # Extrai todos os valores que começam com @ (usuários ou equipes) e os junta em uma única linha, separados por vírgulas
+            OWNERS=$(grep -o '@[a-zA-Z0-9/_-]*' "$CODEOWNERS_FILE" | paste -sd "," -)
             echo "OWNERS=$OWNERS" >> $GITHUB_ENV
           else
             echo "CODEOWNERS file not found in $CODEOWNERS_FILE."
@@ -49,26 +49,26 @@ jobs:
       #     name: semgrep-report
       #     path: semgrep-report.json
 
-  run_iac_scan:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  # run_iac_scan:
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Run Trivy vulnerability scanner in IaC mode
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          ignore-unfixed: true
-          format: 'json'
-          output: 'trivy-report.json'
-          severity: 'CRITICAL,HIGH'
+  #     - name: Run Trivy vulnerability scanner in IaC mode
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         scan-type: 'fs'
+  #         ignore-unfixed: true
+  #         format: 'json'
+  #         output: 'trivy-report.json'
+  #         severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy report
-        uses: actions/upload-artifact@v3
-        with:
-          name: trivy-report
-          path: 'trivy-report.json'
+  #     - name: Upload Trivy report
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: trivy-report
+  #         path: 'trivy-report.json'
 
 
   # run_sca:

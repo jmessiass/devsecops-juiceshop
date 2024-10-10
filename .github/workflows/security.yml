@@ -1,4 +1,4 @@
-name: Security Scan
+name: Security Scan New
 permissions:
   contents: write
   security-events: write
@@ -18,11 +18,8 @@ jobs:
 
       - name: capture repository owner and name
         run: |
-          OWNER_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
           REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-          echo "OWNER_NAME=$OWNER_NAME" >> $GITHUB_ENV
           echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
-          echo "OWNER: $OWNER_NAME"
           echo "REPO: $REPO_NAME"
 
           CODEOWNERS_FILE=".github/CODEOWNERS"
@@ -30,7 +27,7 @@ jobs:
           # Verifica se o arquivo CODEOWNERS existe
           if [ -f "$CODEOWNERS_FILE" ]; then
             # Extrai todos os valores que começam com @ (usuários ou equipes) e os junta em uma única linha, separados por vírgulas
-            OWNERS=$(grep -o '@[a-zA-Z0-9/_-]*' "$CODEOWNERS_FILE" | paste -sd "," -)
+            OWNERS=$(grep -o '@[a-zA-Z0-9/_-]*' "$CODEOWNERS_FILE" | awk -F'/' '{print $2}' | paste -sd "," -)
             echo "OWNERS=$OWNERS" >> $GITHUB_ENV
             echo "CODEOWNERS: $OWNERS"
           else

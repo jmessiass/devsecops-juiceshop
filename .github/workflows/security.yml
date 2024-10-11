@@ -37,34 +37,34 @@ jobs:
 
       - name: run semgrep
         run: |
-          semgrep --config="p/default" --json --output=semgrep-report.json
+          semgrep --config="p/default" --json --output=sast-report.json
 
       - name: save report as pipeline artifact
         uses: actions/upload-artifact@v3
         with:
-          name: semgrep-report
-          path: semgrep-report.json
+          name: sast-report
+          path: sast-report.json
 
-  run_iac_scan:
+  run_sca_scan:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Trivy vulnerability scanner in IaC mode
+      - name: Run Trivy vulnerability scanner in SCA mode
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           ignore-unfixed: true
           format: 'json'
-          output: 'trivy-report.json'
+          output: 'sca-report.json'
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy report
         uses: actions/upload-artifact@v3
         with:
-          name: trivy-report
-          path: 'trivy-report.json'
+          name: sca-report
+          path: 'sca-report.json'
 
 
   # run_sca:

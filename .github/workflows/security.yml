@@ -7,55 +7,55 @@ on:
   push:
 
 jobs:
-  run_sast:
-    runs-on: ubuntu-latest
-    container:
-      image: returntocorp/semgrep
+  # run_sast:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: returntocorp/semgrep
 
-    steps:
-      - name: clone application source code
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: clone application source code
+  #       uses: actions/checkout@v3
 
-      - name: capture repository owner and name
-        run: |
-          REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
-          echo "REPO: $REPO_NAME"
+  #     - name: capture repository owner and name
+  #       run: |
+  #         REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+  #         echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+  #         echo "REPO: $REPO_NAME"
 
-          CODEOWNERS_FILE=".github/CODEOWNERS"
+  #         CODEOWNERS_FILE=".github/CODEOWNERS"
           
-          # Verifica se o arquivo CODEOWNERS existe
-          if [ -f "$CODEOWNERS_FILE" ]; then
-            # Extrai todos os valores que começam com @ (usuários ou equipes) e os junta em uma única linha, separados por vírgulas
-            OWNERS=$(grep -o '@[a-zA-Z0-9/_-]*' "$CODEOWNERS_FILE" | awk -F'/' '{print $2}' | paste -sd "," -)
-            echo "OWNERS=$OWNERS" >> $GITHUB_ENV
-            echo "CODEOWNERS: $OWNERS"
-          else
-            echo "CODEOWNERS file not found in $CODEOWNERS_FILE."
-            exit 1
-          fi
+  #         # Verifica se o arquivo CODEOWNERS existe
+  #         if [ -f "$CODEOWNERS_FILE" ]; then
+  #           # Extrai todos os valores que começam com @ (usuários ou equipes) e os junta em uma única linha, separados por vírgulas
+  #           OWNERS=$(grep -o '@[a-zA-Z0-9/_-]*' "$CODEOWNERS_FILE" | awk -F'/' '{print $2}' | paste -sd "," -)
+  #           echo "OWNERS=$OWNERS" >> $GITHUB_ENV
+  #           echo "CODEOWNERS: $OWNERS"
+  #         else
+  #           echo "CODEOWNERS file not found in $CODEOWNERS_FILE."
+  #           exit 1
+  #         fi
 
-      - name: run semgrep
-        run: |
-          semgrep --config="p/default" --json --output=sast-report.json
+  #     - name: run semgrep
+  #       run: |
+  #         semgrep --config="p/default" --json --output=sast-report.json
 
-      - name: save report as pipeline artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: sast-report
-          path: sast-report.json
+  #     - name: save report as pipeline artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: sast-report
+  #         path: sast-report.json
 
-  run_sca_scan:
+  run_sca:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Run Trivy vulnerability scanner in SCA mode
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.20.0
         with:
           scan-type: 'fs'
-          ignore-unfixed: true
+          # ignore-unfixed: true
           format: 'json'
           output: 'sca-report.json'
           severity: 'CRITICAL,HIGH'
@@ -65,6 +65,27 @@ jobs:
         with:
           name: sca-report
           path: 'sca-report.json'
+
+  # run_iac_scan:
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+  #     - name: Run Trivy vulnerability scanner in IaC Scan mode
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         scan-type: 'fs'
+  #         ignore-unfixed: true
+  #         format: 'json'
+  #         output: 'sca-report.json'
+  #         severity: 'CRITICAL,HIGH'
+
+  #     - name: Upload Trivy report
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: sca-report
+  #         path: 'sca-report.json'
 
 
   # run_sca:

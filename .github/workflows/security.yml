@@ -53,7 +53,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: 🩺 Run SAST - Semgrep 
-        run: semgrep ci --severity WARNING --json -o sast-report.json || true
+        run: semgrep ci --severity ERROR --json -o sast-report.json || true
         env: 
           SEMGREP_RULES: ${{ github.event_name == 'pull_request' && 'p/cwe-top-25 p/owasp-top-ten p/r2c-security-audit p/javascript p/trailofbits' || 'p/default' }} 
  

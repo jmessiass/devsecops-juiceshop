@@ -39,19 +39,38 @@ jobs:
   #       run: |
   #         semgrep --config="p/default" --json --output=sast-report.json
 
-  #     - name: save report as pipeline artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: sast-report
-  #         path: sast-report.json
+
+  run_sast:
+    if: (github.actor != 'dependabot[bot]')
+    name: Semgrep Scan 
+    runs-on: ubuntu-latest
+
+    container:
+      image: returntocorp/semgrep
+
+    steps:
+      - name: 🏗 Checkout files
+        uses: actions/checkout@v4
+      
+      - name: 🩺 Run SAST - Semgrep 
+        run: semgrep ci --json -o sast-report.json || true
+        env: 
+          SEMGREP_RULES: ${{ github.event_name == 'pull_request' && 'p/cwe-top-25 p/owasp-top-ten p/r2c-security-audit p/javascript p/trailofbits' || 'p/default' }} 
+ 
+      - name: Save Semgrep Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-report
+          path: sast-report.json
+
 
   run_sca:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Trivy vulnerability scanner in SCA mode
+      - name: 🩺 Run SCA - Trivy
         uses: aquasecurity/trivy-action@0.20.0
         with:
           scan-type: 'fs'
@@ -59,7 +78,7 @@ jobs:
           output: 'sca-report.json'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy report
+      - name: Save Trivy Report
         uses: actions/upload-artifact@v4
         with:
           name: sca-report
@@ -85,38 +104,6 @@ jobs:
   #       with:
   #         name: sca-report
   #         path: 'sca-report.json'
-
-
-  # run_sca:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-
-  #     - name: Install dependencies
-  #       run: |
-  #         npm install
-  #         npm install --package-lock
-
-  #     - name: Run dependency check (SCA)
-  #       uses: dependency-check/Dependency-Check_Action@main
-  #       id: Depcheck
-  #       with:
-  #         project: 'juice-shop'
-  #         path: '.'
-  #         format: 'JSON'
-  #         out: 'dependency-check-report.json'
-  #         args: >
-  #           --failOnCVSS 11
-  #           --enableRetired
-  #           --disableArchive --exclude **/*.zip
-
-  #     - name: Upload Depcheck report
-  #       if: always()
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: dependency-check-report
-  #         path: dependency-check-report.json
 
   # run_dast:
   #   runs-on: ubuntu-latest

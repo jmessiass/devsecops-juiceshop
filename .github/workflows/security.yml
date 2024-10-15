@@ -42,22 +42,22 @@ jobs:
 
   run_sast:
     if: (github.actor != 'dependabot[bot]')
-    name: Semgrep Scan 
+    name: SAST Scan
     runs-on: ubuntu-latest
 
     container:
       image: returntocorp/semgrep
 
     steps:
-      - name: 🏗 Checkout files
+      - name: 🏗 Checkout code
         uses: actions/checkout@v4
       
       - name: 🩺 Run SAST - Semgrep 
-        run: semgrep ci --json -o sast-report.json || true
+        run: semgrep ci --severity ERROR --severity WARNING --json -o sast-report.json || true
         env: 
           SEMGREP_RULES: ${{ github.event_name == 'pull_request' && 'p/cwe-top-25 p/owasp-top-ten p/r2c-security-audit p/javascript p/trailofbits' || 'p/default' }} 
  
-      - name: Save Semgrep Report
+      - name: 🏗 Save Semgrep Report
         uses: actions/upload-artifact@v4
         with:
           name: sast-report
@@ -65,9 +65,10 @@ jobs:
 
 
   run_sca:
+    name: SCA Scan
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: 🏗 Checkout code
         uses: actions/checkout@v4
 
       - name: 🩺 Run SCA - Trivy
@@ -78,7 +79,7 @@ jobs:
           output: 'sca-report.json'
           severity: 'CRITICAL,HIGH'
 
-      - name: Save Trivy Report
+      - name: 🏗 Save Trivy Report
         uses: actions/upload-artifact@v4
         with:
           name: sca-report

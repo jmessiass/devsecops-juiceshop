@@ -84,26 +84,19 @@ jobs:
           name: sca-report
           path: 'sca-report.json'
 
-  checkov-secrets-scan:
-      name: Checkov Secrets Scan
-      runs-on: ubuntu-latest
+  trufflehog-scan:
+    name: TruffleHog Secrets Scan
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Set up Python
-          uses: actions/setup-python@v4
-          with:
-            python-version: '3.x'
-
-        - name: Install Checkov
-          run: |
-            pip install checkov
-
-        - name: Run Checkov for secrets scanning
-          run: |
-            checkov -d . --check CKV_SECRET
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@v3
+        with:
+          scan_directory: .
+          branch: main
 
   run_secrets_scan:
       runs-on: ubuntu-latest

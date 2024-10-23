@@ -63,7 +63,6 @@ jobs:
           name: sast-report
           path: sast-report.json
 
-
   run_sca:
     name: SCA Scan
     runs-on: ubuntu-latest
@@ -84,6 +83,27 @@ jobs:
         with:
           name: sca-report
           path: 'sca-report.json'
+          
+  checkov-secrets-scan:
+      name: Checkov Secrets Scan
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.x'
+
+        - name: Install Checkov
+          run: |
+            pip install checkov
+
+        - name: Run Checkov for secrets scanning
+          run: |
+            checkov -d . --check CKV_SECRET
 
   # run_iac_scan:
   #   runs-on: ubuntu-20.04

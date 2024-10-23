@@ -96,7 +96,7 @@ jobs:
         run: pip install truffleHog
 
       - name: Run TruffleHog
-        run: trufflehog filesystem --directory . --json
+        run:  trufflehog --json --regex .
 
   run_secrets_scan:
       runs-on: ubuntu-latest

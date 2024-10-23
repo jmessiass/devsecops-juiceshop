@@ -90,13 +90,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+
+      - name: Install TruffleHog
+        run: pip install truffleHog
 
       - name: Run TruffleHog
-        uses: trufflesecurity/trufflehog@v3
-        with:
-          scan_directory: .
-          branch: main
+        run: trufflehog filesystem --directory . --json
 
   run_secrets_scan:
       runs-on: ubuntu-latest

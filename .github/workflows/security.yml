@@ -63,12 +63,15 @@ jobs:
           name: sast-report
           path: sast-report.json
 
-  run_sca:
+  rua_sca:
     name: SCA Scan
     runs-on: ubuntu-latest
     steps:
       - name: 🏗 Checkout code
         uses: actions/checkout@v4
+
+      - name: 🔄 Download Trivy Database
+        run: trivy --cache-dir /tmp/trivy/db --download-db-only
 
       - name: 🩺 Run SCA - Trivy
         uses: aquasecurity/trivy-action@0.20.0
@@ -77,6 +80,8 @@ jobs:
           format: 'json'
           output: 'sca-report.json'
           severity: 'CRITICAL,HIGH'
+        env:
+          TRIVY_CACHE_DIR: /tmp/trivy/db
 
       - name: 🏗 Save Trivy Report
         uses: actions/upload-artifact@v4
